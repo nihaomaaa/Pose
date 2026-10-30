@@ -1,0 +1,17 @@
+/* Pose controls · native keyboard semantics, app-rendered rounded menus */
+@supports (appearance:base-select){
+ select,select::picker(select){appearance:base-select}
+ select{align-items:center;gap:12px;cursor:pointer;text-align:start;min-width:0;border-radius:10px}
+ select::picker-icon{color:#72727c;transition:transform .16s ease;font-size:11px}
+ select:open::picker-icon{transform:rotate(180deg)}
+ select::picker(select){margin-block:6px;padding:6px;border:1px solid rgb(50 55 75 / .15);border-radius:14px;background:rgb(252 252 254 / .96);color:#1d1d1f;box-shadow:0 8px 22px rgb(25 30 50 / .14),0 2px 5px rgb(25 30 50 / .07);backdrop-filter:blur(24px) saturate(1.2);max-height:min(380px,60dvh);overflow:auto;scrollbar-width:thin;min-width:anchor-size(width);font:13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei UI',sans-serif}
+ select option{border:0;border-radius:8px;min-height:40px;padding:9px 12px;gap:10px;cursor:pointer;white-space:normal;overflow-wrap:anywhere}
+ select option:hover,select option:focus-visible{background:#e7effb;color:#005bb8;outline:none}
+ select option:checked{background:#e7effb;color:#005bb8;font-weight:600}
+ select option::checkmark{color:#0066cc;order:2;margin-inline-start:auto}
+ select option:disabled{opacity:.45;cursor:not-allowed}
+ select:disabled{cursor:not-allowed}
+ @media(prefers-reduced-transparency:reduce){select::picker(select){background:#fcfcfe;backdrop-filter:none}}
+ @media(prefers-contrast:more){select::picker(select){background:#fff;border:1px solid #444}select option:checked{outline:1px solid #0066cc}}
+ @media(prefers-reduced-motion:reduce){select::picker-icon{transition:none}}
+}

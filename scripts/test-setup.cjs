@@ -1,0 +1,1 @@
+const {Setup}=require('../setup.cjs');const path=require('node:path');const setup=new Setup({resources:path.resolve(__dirname,'..'),state:process.env.POSE_DESKTOP_DATA,onChange:s=>console.log(JSON.stringify(s))});(async()=>{await setup.init();await setup.start();if(!setup.state.ready)process.exitCode=1;})();

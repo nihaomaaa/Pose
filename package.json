@@ -1,0 +1,104 @@
+{
+  "name": "pose-atelier",
+  "version": "0.3.0",
+  "description": "Pose — private AI pose editing with local models and cloud providers",
+  "author": "Pose contributors",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "main": "main.cjs",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "build": "node scripts/build-icons.cjs && electron-builder --win nsis --x64",
+    "pack": "electron-builder --dir --win --x64",
+    "prepare": "node scripts/prepare-build.mjs",
+    "build:icons": "node scripts/build-icons.cjs"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "studio.poseatelier.desktop",
+    "productName": "Pose",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "setup.cjs",
+      "hardware.cjs",
+      "ui/**/*",
+      "package.json",
+      "config.cjs",
+      "assets.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "app",
+        "to": "app",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**"
+        ]
+      },
+      {
+        "from": "build/uv.exe",
+        "to": "uv.exe"
+      },
+      {
+        "from": "licenses",
+        "to": "licenses"
+      },
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "from": "LICENSE",
+        "to": "LICENSE"
+      },
+      {
+        "from": "docs",
+        "to": "docs",
+        "filter": [
+          "TERMS.*.md",
+          "PRIVACY.md",
+          "API_SUPPORT.md",
+          "MODELS_AND_WORKFLOWS.md"
+        ]
+      },
+      {
+        "from": "README.md",
+        "to": "README.md"
+      },
+      {
+        "from": "README.en.md",
+        "to": "README.en.md"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "artifactName": "Pose-Setup-${version}-${arch}.${ext}",
+      "signAndEditExecutable": true
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "language": "2052",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    }
+  }
+}

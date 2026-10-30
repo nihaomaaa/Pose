@@ -1,0 +1,12 @@
+const os=require('node:os');const path=require('node:path');const powershell=path.join(process.env.SystemRoot||'C:/Windows','System32/WindowsPowerShell/v1.0/powershell.exe');const {execFile}=require('node:child_process');
+const exec=(exe,args)=>new Promise(resolve=>execFile(exe,args,{windowsHide:true,timeout:25000,maxBuffer:2000000},(e,stdout)=>resolve(e?null:stdout.trim())));
+function recommend(h){if(h.platform!=='win32'||h.arch!=='x64')return {supported:false,reason:'此安装包支持 Windows 10/11 的 x64 电脑。'};const gpu=(h.cuda||[]).filter(x=>x.major>=7&&x.vram>=6*1024**3).sort((a,b)=>b.vram-a.vram)[0];if(gpu&&h.ram>=24*1024**3){const full=gpu.vram>=24*1024**3&&h.ram>=48*1024**3;return {supported:true,model:'FLUX.2 klein 4B',profile:full?'cuda-full':'cuda-nf4',device:gpu.index,precision:gpu.major>=8?'bf16':'fp16',label:full?'完整精度 · 显卡加速':'省显存 · 显卡加速',reason:'支持人物与姿势多图编辑，无需账号和 API 费用。',requiredGB:45};}if(h.ram>=48*1024**3)return {supported:true,model:'FLUX.2 klein 4B',profile:'cpu',precision:'fp32',label:'CPU 兼容模式',reason:'未检测到适合的 NVIDIA 显卡，将使用处理器；生成可能需要很长时间。',requiredGB:55};return {supported:false,reason:'本地出图建议 NVIDIA 显卡至少 6 GB 显存、24 GB 内存；CPU 兼容模式需要至少 48 GB 内存。当前电脑可打开安装向导，但暂不支持本地出图。'};}
+async function detect(python,probe){let cuda=[];if(python){try{cuda=JSON.parse(await exec(python,[probe])||'[]');}catch{}}const raw=await exec(powershell,['-NoProfile','-NonInteractive','-Command','Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name | ConvertTo-Json -Compress']);let adapters=[];try{const v=JSON.parse(raw);adapters=(Array.isArray(v)?v:[v]).filter(Boolean);}catch{}const h={platform:process.platform,arch:process.arch,ram:os.totalmem(),cpu:os.cpus()[0]?.model||'未知处理器',cuda,adapters};return {...h,recommendation:recommend(h)};}
+function chooseProfile(h,preference='auto'){
+ const base=recommend(h);if(!base.supported)return base;const gpu=(h.cuda||[]).find(x=>x.index===base.device);if(preference==='quality'){
+  if(base.profile==='cpu'&&h.ram<64*1024**3)return {supported:false,reason:'QUALITY_MEMORY_REQUIRED'};
+  if(base.profile!=='cpu'&&(!gpu||gpu.vram<7.5*1024**3||h.ram<28*1024**3))return {supported:false,reason:'QUALITY_MEMORY_REQUIRED'};
+  return {...base,model:'FLUX.2 klein 9B',modelKey:'klein-9b',profile:base.profile==='cpu'?'cpu':'cuda-nf4',label:'QUALITY_9B',requiredGB:65};
+ }return {...base,modelKey:preference==='custom'?'custom':'klein-4b',profile:preference==='compact'&&gpu?'cuda-nf4':base.profile};
+}
+module.exports={detect,recommend,chooseProfile};
